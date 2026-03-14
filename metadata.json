@@ -1,0 +1,9 @@
+{
+  "name": "EduSmart - المنصة التعليمية الذكية",
+  "description": "تطبيق تعليمي متكامل يدعم الكورسات، الوحدات، الدروس، والفعاليات التفاعلية مع نظام تحفيز ولوحة تحكم إدارية.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "Course": {
+      "title": "Course",
+      "description": "A top-level educational course",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Course title" },
+        "description": { "type": "string", "description": "Course description" },
+        "thumbnail": { "type": "string", "description": "URL to course thumbnail" },
+        "category": { "type": "string", "description": "Course category" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description"]
+    },
+    "Unit": {
+      "title": "Unit",
+      "description": "A unit within a course",
+      "type": "object",
+      "properties": {
+        "courseId": { "type": "string", "description": "Reference to parent course" },
+        "title": { "type": "string", "description": "Unit title" },
+        "order": { "type": "integer", "description": "Display order" }
+      },
+      "required": ["courseId", "title", "order"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "A lesson within a unit",
+      "type": "object",
+      "properties": {
+        "unitId": { "type": "string", "description": "Reference to parent unit" },
+        "title": { "type": "string", "description": "Lesson title" },
+        "content": { "type": "string", "description": "Main lesson text content" },
+        "summary": { "type": "string", "description": "Smart summary (In Brief)" },
+        "order": { "type": "integer", "description": "Display order" }
+      },
+      "required": ["unitId", "title", "order"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "An interactive activity within a lesson",
+      "type": "object",
+      "properties": {
+        "lessonId": { "type": "string", "description": "Reference to parent lesson" },
+        "type": { "type": "string", "enum": ["game", "quiz", "video", "audio"], "description": "Type of activity" },
+        "title": { "type": "string", "description": "Activity title" },
+        "data": { "type": "string", "description": "JSON string containing activity-specific data (questions, game config, etc.)" },
+        "order": { "type": "integer", "description": "Display order" }
+      },
+      "required": ["lessonId", "type", "title", "order"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and stats",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "totalXp": { "type": "integer" },
+        "level": { "type": "integer" },
+        "role": { "type": "string", "enum": ["admin", "student"] }
+      },
+      "required": ["uid", "email"]
+    },
+    "UserProgress": {
+      "title": "UserProgress",
+      "description": "Tracking user progress on lessons",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "lessonId": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "score": { "type": "integer" },
+        "xpEarned": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "lessonId"]
+    }
+  },
+  "firestore": {
+    "/courses": { "schema": "Course", "description": "Global courses" },
+    "/courses/{courseId}/units": { "schema": "Unit", "description": "Units for a course" },
+    "/courses/{courseId}/units/{unitId}/lessons": { "schema": "Lesson", "description": "Lessons for a unit" },
+    "/courses/{courseId}/units/{unitId}/lessons/{lessonId}/activities": { "schema": "Activity", "description": "Activities for a lesson" },
+    "/users": { "schema": "UserProfile", "description": "User profiles" },
+    "/progress": { "schema": "UserProgress", "description": "User progress tracking" }
+  }
+}

@@ -1,0 +1,79 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: courses
+// Fields: title, description, thumbnail, category, createdAt
+//
+// Collection: courses/{courseId}/units
+// Fields: courseId, title, order
+//
+// Collection: courses/{courseId}/units/{unitId}/lessons
+// Fields: unitId, title, content, summary, order
+//
+// Collection: courses/{courseId}/units/{unitId}/lessons/{lessonId}/activities
+// Fields: lessonId, type, title, data, order
+//
+// Collection: users
+// Fields: uid, displayName, email, photoURL, totalXp, level, role
+//
+// Collection: progress
+// Fields: userId, lessonId, completed, score, xpEarned, updatedAt
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "ezzob1995@gmail.com");
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    // Rules
+    
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    match /courses/{courseId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      
+      match /units/{unitId} {
+        allow read: if isAuthenticated();
+        allow write: if isAdmin();
+        
+        match /lessons/{lessonId} {
+          allow read: if isAuthenticated();
+          allow write: if isAdmin();
+          
+          match /activities/{activityId} {
+            allow read: if isAuthenticated();
+            allow write: if isAdmin();
+          }
+        }
+      }
+    }
+    
+    match /progress/{progressId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}
